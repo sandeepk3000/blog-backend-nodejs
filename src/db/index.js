@@ -2,7 +2,7 @@ import mongoose from "mongoose"
 
 const connectToDB = async()=>{
     try {
-        const url = "mongodb://localhost:27017/blogs"
+        const url = "mongodb+srv://geelucknow:ETlsFfb3xUPLBuNw@blogscluster.qmxsyx1.mongodb.net/skblogs?retryWrites=true&w=majority&appName=Blogscluster"
         const connectionInstance = await mongoose.connect(url)
         console.log("connectionInstance",connectionInstance)
     } catch (error) {
