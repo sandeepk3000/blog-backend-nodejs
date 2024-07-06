@@ -1,4 +1,4 @@
-import { Article } from "../models/blog.model.js"
+import { Article } from "../models/article.model.js"
 import ApiResponse from "../utils/ApiResponse.js"
 import { ApiError } from "../utils/apiError.js"
 import asyncHandler from "../utils/asyncHandler.js"
