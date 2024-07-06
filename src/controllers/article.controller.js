@@ -2,7 +2,7 @@ import { Article } from "../models/article.model.js"
 import ApiResponse from "../utils/ApiResponse.js"
 import { ApiError } from "../utils/apiError.js"
 import asyncHandler from "../utils/asyncHandler.js"
-import uploadOnCloudinary from "../utils/cloudinary.js"
+import { uploadOnCloudinary, deleteOnCloudinary } from "../utils/cloudinary.js"
 
 const createArticle = asyncHandler(async (req, res) => {
     const { title, uniqueId, keywords, status, category, content, author } = req.body
@@ -18,12 +18,6 @@ const createArticle = asyncHandler(async (req, res) => {
     }
     if (!thumbnailLocalPath) {
         throw new ApiError(400, "Thumbnail local path is required")
-    }
-
-    const thumbnail = await uploadOnCloudinary(thumbnailLocalPath)
-
-    if (!thumbnail) {
-        throw new ApiError(500, "Server error during uploading thumbnail on cloudinary")
     }
     const createdArticle = await Article.create({
         title: title,
@@ -44,7 +38,7 @@ const createArticle = asyncHandler(async (req, res) => {
 
 })
 const updateArticle = asyncHandler(async (req, res) => {
-    const articleId  = req?.params?.articleId
+    const articleId = req?.params?.articleId
     if (!articleId) {
         throw new ApiError(404, "Article id is required")
     }
@@ -52,7 +46,8 @@ const updateArticle = asyncHandler(async (req, res) => {
     if ([title, uniqueId, keywords, status, category, content, author].some((value) => value.trim() === "")) {
         throw new ApiError(404, "All fields is required")
     }
-    console.log("update", req.files.thumbnail[0].path);
+    console.log("update", Object.keys(req.files).length);
+
     const isExitsArticle = await Article.findOne({
         $or: [
             {
@@ -66,6 +61,22 @@ const updateArticle = asyncHandler(async (req, res) => {
     if (!isExitsArticle) {
         throw new ApiError(404, "Article is not exits")
     }
+    let thumbnail = null
+    if (Object.keys(req.files).length > 0) {
+
+        const thumbnailLocalPath = req.files.thumbnail[0].path
+
+        thumbnail = await uploadOnCloudinary(thumbnailLocalPath)
+
+        const isDeleteOnCloudinary = await deleteOnCloudinary(isExitsArticle.thumbnail.split("/")[7].split(".")[0])
+
+        if (!isDeleteOnCloudinary) {
+            throw new ApiError(500, "Server error during delete thumbnail on cloudinary")
+        }
+        if (!thumbnail) {
+            throw new ApiError(500, "Server error during uploading thumbnail on cloudinary")
+        }
+    }
     const updatedArticle = await Article.findByIdAndUpdate(isExitsArticle._id, {
         title: title,
         uniqueId: uniqueId,
@@ -74,6 +85,9 @@ const updateArticle = asyncHandler(async (req, res) => {
         category: category,
         content: content,
         author: author,
+        thumbnail: thumbnail ? thumbnail.url : isExitsArticle.thumbnail
+    }, {
+        new: true
     })
     if (!updatedArticle) {
         throw new ApiError(500, "Server error during updating article")
