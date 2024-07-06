@@ -2,17 +2,10 @@ import express from "express"
 const app = express()
 import cors from "cors"
 import cookieParser from "cookie-parser"
-import userRoute from "./routes/user.routes.js"
-import articleRoute from "./routes/article.routes.js"
+
 const corsOptions = {
     origin: "*",
     credentials: true
 }
-app.use(express.static("./public"))
 app.use(cors(corsOptions))
-app.use(express.json({ limit: "16kb" }))
-app.use(express.urlencoded({ extended: true, limit: "16kb" }))
-app.use(cookieParser())
-app.use("/api/v1/user", userRoute)
-app.use("/api/v1/article", articleRoute)
 export { app }
