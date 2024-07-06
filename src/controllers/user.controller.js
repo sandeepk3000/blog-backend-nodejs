@@ -36,7 +36,6 @@ const sigunp = asyncHandler(async (req, res) => {
 
     res.status(201).json(new ApiResponse(201, "User is signup successfully", createdUser, true))
 })
-
 const generateAccessTokenAndRefreshToken = async (userId) => {
     try {
         if (!userId) {
@@ -84,23 +83,8 @@ const login = asyncHandler(async (req, res) => {
             new ApiResponse(200, "User logged successfully", loggedUser,true) // not git
         )
 })
-const logout = asyncHandler(async (req, res) => {
-    await User.updateOne({ _id: req.user._id }, {
-        $unset: {
-            refreshToken: 1
-        }
-    })
-    const options = {
-        httpOnly: true,
-        secure: true
-    }
-    res.status(200)
-        .clearCookie("refreshToken", options)
-        .clearCookie("accessToken", options)
-        .json(
-            new ApiResponse(200, "User logout successfully", {},true)
-        )
-})
+
+
 
 export {
     sigunp,
