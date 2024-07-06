@@ -1,5 +1,5 @@
 import express from "express"
-import { createArticle } from "../controllers/blog.controller.js"
+import { createArticle } from "../controllers/article.controller.js"
 import verifyJWT from "../middlewares/auth.middleware.js"
 import { upload } from "../middlewares/multer.middleware.js"
 
