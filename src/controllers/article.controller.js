@@ -95,7 +95,37 @@ const updateArticle = asyncHandler(async (req, res) => {
     return res.status(200)
         .json(new ApiResponse(200, "Article is updated successfully", updatedArticle, true))
 })
+const deleteArticle = asyncHandler(async (req, res) => {
+    const articleId = req?.params?.articleId;
+    if (!articleId) {
+        throw new ApiError(404, "Article id is required")
+    }
+
+    const isExitsArticle = await Article.findOne({
+        $or: [
+            {
+                uniqueId: null
+            },
+            {
+                _id: articleId
+            }
+        ]
+    })
+    if (!isExitsArticle) {
+        throw new ApiError(404, "Article is not exits")
+    }
+
+    const deletedArticle =  await Article.deleteOne({_id:isExitsArticle._id})
+    if(!deletedArticle){
+        throw new ApiError(500,"Server error during deleteArticle")
+    }
+
+    res.status(200)
+    .json(new ApiResponse(200,"Article is successfully deleted",{},true))
+
+})
 export {
     createArticle,
-    updateArticle
+    updateArticle,
+    deleteArticle
 }
