@@ -3,7 +3,7 @@ import ApiResponse from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
-const sigunp = asyncHandler(async (req, res) => {
+const signup = asyncHandler(async (req, res) => {
     const { name, username, email, password } = req.body
 
     if ([name, username, email, password].some((value) => value.trim() === "")) {
@@ -128,7 +128,7 @@ const getUser = asyncHandler(async (req, res) => {
 })
 
 export {
-    sigunp,
+    signup,
     login,
     logout,
     getUser
