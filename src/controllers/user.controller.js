@@ -80,7 +80,7 @@ const login = asyncHandler(async (req, res) => {
         .cookie("refreshToken", refreshToken, options)
         .cookie("accessToken", accessToken, options)
         .json(
-            new ApiResponse(200, "User logged successfully", loggedUser,true) // not git
+            new ApiResponse(200, "User logged successfully", loggedUser, true) // not git
         )
 })
 const logout = asyncHandler(async (req, res) => {
@@ -97,13 +97,39 @@ const logout = asyncHandler(async (req, res) => {
         .clearCookie("refreshToken", options)
         .clearCookie("accessToken", options)
         .json(
-            new ApiResponse(200, "User logout successfully", {},true)
+            new ApiResponse(200, "User logout successfully", {}, true)
         )
 })
+const getUser = asyncHandler(async (req, res) => {
+    const { email, id, username } = req?.query || null
 
+    if (!(email || id || username)) {
+        throw new ApiError(404, "Filter is required")
+    }
+    const user = await User.findOne({
+        $or: [
+            {
+                email: email
+            },
+            {
+                _id: id
+            },
+            {
+                username: username
+            }
+        ]
+    }).select("-password -refreshToken")
+    if(!user){
+        throw new ApiError(404,"User is not exits")
+    }
+
+    res.status(200)
+    .json(new ApiResponse(200,"User is fetched successfully",user,true))
+})
 
 export {
     sigunp,
     login,
-    logout
+    logout,
+    getUser
 }
