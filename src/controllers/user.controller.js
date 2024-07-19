@@ -151,10 +151,16 @@ const changePassword = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, "Password changed successfully", updatedUser, true))
 
 })
+const deleteUser = asyncHandler(async (req, res) => {
+    await User.deleteOne({ _id: req.user._id })
+    return res.status(200)
+        .json(new ApiResponse(200, "User successfully deleted", {}, true))
+})
 export {
     signup,
     login,
     logout,
     getUser,
-    changePassword
+    changePassword,
+    deleteUser
 }
