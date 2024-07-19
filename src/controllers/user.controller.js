@@ -80,7 +80,7 @@ const login = asyncHandler(async (req, res) => {
         .cookie("refreshToken", refreshToken, options)
         .cookie("accessToken", accessToken, options)
         .json(
-            new ApiResponse(200, "User logged successfully", loggedUser, true) // not git
+            new ApiResponse(200, "User logged successfully", { user: loggedUser, refreshToken, accessToken }, true) // not git
         )
 })
 const logout = asyncHandler(async (req, res) => {
@@ -119,17 +119,42 @@ const getUser = asyncHandler(async (req, res) => {
             }
         ]
     }).select("-password -refreshToken")
-    if(!user){
-        throw new ApiError(404,"User is not exits")
+    if (!user) {
+        throw new ApiError(404, "User is not exits")
     }
 
     res.status(200)
-    .json(new ApiResponse(200,"User is fetched successfully",user,true))
+        .json(new ApiResponse(200, "User is fetched successfully", user, true))
 })
+const changePassword = asyncHandler(async (req, res) => {
+    const { password, newPasword } = req.body
+    if ([password, newPassword].some((value) => value === "")) {
+        throw new ApiError(404, "Password is required")
+    }
+    const exitsUser = await User.findById(req.user._id)
+    if (!exitUser) {
+        throw new ApiError(409, "Unathorized request")
+    }
+    const isPasswordTrue = await user.isValidPassword(password)
+    if (!isPasswordTrue) {
+        throw new ApiError(400, "Invalid password")
+    }
+    const updatedUser = await User.updateOne({ _id: exitsUser._id }, {
+        $set: {
+            password: newPasword
+        }
+    })
+    if (!updatedUser) {
+        throw new ApiError(500, "Server error during updating password")
+    }
+    return res.status(200)
+        .json(new ApiResponse(200, "Password changed successfully", updatedUser, true))
 
+})
 export {
     signup,
     login,
     logout,
-    getUser
+    getUser,
+    changePassword
 }
